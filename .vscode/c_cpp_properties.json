@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/leomotors/src/emsdk/upstream/emscripten/cache/sysroot/include/SDL",
+                "/home/leomotors/src/emsdk/upstream/emscripten/cache/sysroot/include/compat",
+                "/home/leomotors/src/emsdk/upstream/lib/clang/15.0.0/include",
+                "/home/leomotors/src/emsdk/upstream/emscripten/cache/sysroot/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

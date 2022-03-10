@@ -1,0 +1,25 @@
+{
+  "name": "baht.c",
+  "version": "1.0.0",
+  "description": "baht.js but it is written in C",
+  "main": "index.js",
+  "repository": "https://github.com/Leomotors/baht.c",
+  "author": "Leomotors",
+  "license": "MIT",
+  "scripts": {
+    "build": "scripts/build.bash && uglifyjs dist/build.js --compress --mangle -o dist/build.js && scripts/postbuild.bash",
+    "clean": "rm -rf dist",
+    "test": "mocha",
+    "lint": "prettier --check \"{src,test}/**/*.{js,ts}\"",
+    "format": "prettier --write \"{src,test}/**/*.{js,ts}\""
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.1.0",
+    "baht": "^0.6.1",
+    "chai": "^4.3.6",
+    "mocha": "^9.2.1",
+    "prettier": "^2.5.1",
+    "uglify-js": "^3.15.3"
+  }
+}
