@@ -7,7 +7,8 @@
   "author": "Leomotors",
   "license": "MIT",
   "scripts": {
-    "build": "scripts/build.bash && uglifyjs dist/build.js --compress --mangle -o dist/build.js && scripts/postbuild.bash",
+    "dev": "scripts/build.bash 1",
+    "build": "scripts/build.bash 0",
     "clean": "rm -rf dist",
     "test": "mocha",
     "lint": "prettier --check \"{src,test}/**/*.{js,ts}\"",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",
+    "@types/emscripten": "^1.39.6",
     "@types/mocha": "^9.1.0",
     "baht": "^0.6.1",
     "chai": "^4.3.6",

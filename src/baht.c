@@ -6,8 +6,14 @@
 #define export EMSCRIPTEN_KEEPALIVE
 
 // * Max Size is "หนึ่ง" at 15 bytes
-const char *DIGITS[] = {"หนึ่ง", "สอง", "สาม", "สี่",  "ห้า",
-                        "หก",  "เจ็ด", "แปด", "เก้า"};
+const char *DIGITS[] = {"ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่",
+                        "ห้า",  "หก",  "เจ็ด", "แปด", "เก้า"};
+
+// * Max Size is "หมื่น" at 15 bytes
+const char *TENS[] = {"", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"};
+
+#define BAHT "บาท"
+#define SATANG "สตางค์"
 
 void swap(char *a, char *b) {
     char tmp = *a;
@@ -22,8 +28,8 @@ void reverseMutStr(char *str, int n) {
     }
 }
 
-char *numberToRevStr(int32_t n) {
-    char *res = malloc(sizeof(res) * 15);
+char *numberToRevStr(int64_t n) {
+    char *res = malloc(sizeof(res) * 25);
 
     int i = 0;
     while (n > 0) {
@@ -35,14 +41,38 @@ char *numberToRevStr(int32_t n) {
     return res;
 }
 
-char *baht(int32_t n);
-char *bahtStr(char *str);
-
-export char *baht(int32_t n) {
-    return bahtStr(numberToRevStr(n));
+char *concatStr(char *dest, char *src) {
+    for (char *p = src; *p; p++) {
+        *dest++ = *p;
+    }
+    return dest;
 }
 
-export char *bahtStr(char *str) {
-    reverseMutStr(str, strlen(str));
-    return str;
+char *baht_i64(int64_t n);
+char *baht_str(char *str);
+
+export char *baht_i64(int64_t n) {
+    return baht_str(numberToRevStr(n));
+}
+
+export char *baht_str(char *str) {
+    int strLen = strlen(str);
+    reverseMutStr(str, strLen);
+
+    char *result = malloc(sizeof(result) * (strLen + 1) * 15);
+    char *curr = result;
+
+    for (int i = 0; i < strLen; i++) {
+        curr = concatStr(curr, (char *)DIGITS[str[i] - '0']);
+    }
+
+    return result;
+}
+
+export char *allocate(int size) {
+    return malloc(size);
+}
+
+export void freeMemory(char *loc) {
+    free(loc);
 }

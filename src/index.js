@@ -1,50 +1,78 @@
-const wasmModule = require("./build");
+// @ts-check
 
-const commands = {
-    baht: undefined,
-    bahtStr: undefined,
-    toStr: undefined,
-    toCStr: undefined,
-};
+/// <reference types="emscripten" />
+
+// @ts-ignore
+const unloadedWasmModule = require("./build");
+
+const ready = loadModules();
+
+/** @type {EmscriptenModule} */
+let wasmModule;
+
+/** @type {typeof UTF8ToString} */
+let toString;
+/** @type {typeof stringToUTF8} */
+let toUTF8;
 
 let initialized = false;
 
 async function loadModules() {
     console.log("Module is loaded");
-    const mod = await wasmModule();
-    commands.baht = mod._baht;
-    commands.bahtStr = mod._bahtStr;
-    commands.toStr = mod.UTF8ToString;
-    commands.toCStr = mod.stringToUTF8;
+
+    wasmModule = await unloadedWasmModule();
+    console.log({ wasmModule });
+    toString = wasmModule["UTF8ToString"];
+    toUTF8 = wasmModule["stringToUTF8"];
+
     initialized = true;
+}
+
+/**
+ * Get String from Pointer and Free the Memory
+ *
+ * @param {number} ptr
+ * @returns {string}
+ */
+function safeGetString(ptr) {
+    const str = toString(ptr);
+    wasmModule["_freeMemory"](ptr);
+    return str;
 }
 
 function run(key) {
     return async (...args) => {
-        if (initialized) return commands.toStr(commands[key](...args));
+        if (!initialized) await ready;
 
-        await loadModules();
-
-        return commands.toStr(commands[key](...args));
+        return safeGetString(wasmModule["_" + key](...args));
     };
 }
 
 function runFromStr(key) {
     return async (str) => {
-        if (initialized)
-            return commands.toStr(commands[key](commands.toCStr(str)));
+        if (!initialized) await ready;
 
-        await loadModules();
+        let alloced = wasmModule["_allocate"](str.length * 4 + 1);
 
-        return commands.toStr(commands[key](commands.toCStr(str)));
+        toUTF8(str, alloced, str.length * 4 + 1);
+
+        return safeGetString(wasmModule["_" + key](alloced));
     };
 }
 
-loadModules();
+function unsafeRun(key) {
+    return (...args) => {
+        if (!initialized) return null;
+
+        return safeGetString(wasmModule["_" + key](...args));
+    };
+}
 
 module.exports = {
-    load: loadModules,
-    baht: run("baht"),
-    baht32: run("baht"),
-    bahtStr: runFromStr("bahtStr"),
+    ready,
+    baht: run("baht_i64"),
+    baht_i64: run("baht_i64"),
+    baht_str: runFromStr("baht_str"),
+    baht_unsafe: unsafeRun("baht_i64"),
+    baht_i64_unsafe: unsafeRun("baht_i64"),
 };
