@@ -31,6 +31,10 @@ AMD Ryzen 9 5900HS Plugged in, Performance Mode (ROG Armoury Crate)
 | x10000    | 73.32        | Memory Full |
 | x100000   | 736.56       | Memory Full |
 
+### My Assumption
+
+WebAssembly is not suitable for small things
+
 ## How to use
 
 ### Current Limitation
@@ -57,5 +61,7 @@ console.log(baht_str_unsafe("12345"));
 
 For valid string, based on testing (See test/baht.spec.js), it passed the test,
 but I cannot guarantee the correctness of this library.
+
+PS v0.1 is developed by TDD, meaning I tweak it until it pass all tests 😂
 
 *and you should not use this library, use [baht.js](https://github.com/narze/baht.js) instead*
