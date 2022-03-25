@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "emscripten.h": "c",
-        "string.h": "c"
-    }
-}

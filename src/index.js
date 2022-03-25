@@ -18,13 +18,9 @@ let toUTF8;
 let initialized = false;
 
 async function loadModules() {
-    console.log("Module is loaded");
-
     wasmModule = await unloadedWasmModule();
-    console.log({ wasmModule });
     toString = wasmModule["UTF8ToString"];
     toUTF8 = wasmModule["stringToUTF8"];
-
     initialized = true;
 }
 
@@ -36,7 +32,7 @@ async function loadModules() {
  */
 function safeGetString(ptr) {
     const str = toString(ptr);
-    wasmModule["_freeMemory"](ptr);
+    // wasmModule["_freeMemory"](ptr);
     return str;
 }
 
@@ -68,6 +64,18 @@ function unsafeRun(key) {
     };
 }
 
+function unsafeStrRun(key) {
+    return (str) => {
+        if (!initialized) return null;
+
+        let alloced = wasmModule["_allocate"](str.length * 4 + 1);
+
+        toUTF8(str, alloced, str.length * 4 + 1);
+
+        return safeGetString(wasmModule["_" + key](alloced));
+    };
+}
+
 module.exports = {
     ready,
     baht: run("baht_i64"),
@@ -75,4 +83,5 @@ module.exports = {
     baht_str: runFromStr("baht_str"),
     baht_unsafe: unsafeRun("baht_i64"),
     baht_i64_unsafe: unsafeRun("baht_i64"),
+    baht_str_unsafe: unsafeStrRun("baht_str"),
 };

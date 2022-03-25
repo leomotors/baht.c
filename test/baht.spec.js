@@ -1,21 +1,38 @@
-const { ready, baht, baht_i64, baht_str } = require("../dist");
+const { ready, baht_str_unsafe } = require("../dist");
 const { performance } = require("perf_hooks");
 
-const { assert } = require("chai");
+const { convert } = require("baht");
 
-describe("Test Function", () => {
-    it("Test Function", () =>
-        (async () => {
-            await ready;
-            const now = performance.now();
-            console.log(`Total Usage: ${performance.now() - now} ms`);
+const numbers = require("./case");
 
-            for (let i = 0; i < 10000; i++) await baht_str("123456");
+describe("Works", () => {
+    it("Can startup", async () => {
+        const now = performance.now();
+        await ready;
+        console.log(`Start: ${performance.now() - now} ms`);
+    });
 
-            console.log("baht (baht_i64) " + (await baht(12345423)));
-            console.log("baht_i64 " + (await baht_i64(12345423)));
-            // console.log("baht_str " + (await baht_str("14389141")));
+    describe(`Using narze's test case (${numbers.length} test cases)`, () => {
+        for (const number of numbers.map((n) => `${n}`)) {
+            it(number, () => {
+                expect(baht_str_unsafe(number)).toBe(convert(number));
+            });
+        }
+    });
 
-            console.log(`Total Usage: ${performance.now() - now} ms`);
-        })());
+    describe("Using Randomized Test Case", () => {
+        const cases = [];
+
+        for (let i = 0; i < 100; i++) {
+            cases.push(
+                Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER / 10)) / 100
+            );
+        }
+
+        for (const number of cases.map((n) => `${n}`)) {
+            it(number, () => {
+                expect(baht_str_unsafe(number)).toBe(convert(number));
+            });
+        }
+    });
 });
