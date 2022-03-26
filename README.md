@@ -12,37 +12,33 @@ But my Question is, can anything faster than baht.js?
 
 What about instead of writing it in JavaScript, I write it in WebAssembly using C?
 
-**TL;DR** It is slow and unreliable
+**TL;DR** It is slow and unreliable, WebAssembly is not suitable for small things, I guess.
 
 ## Benchmark
 
 AMD Ryzen 9 5900HS Plugged in, Performance Mode (ROG Armoury Crate)
 
-**Loading WebAssembly**: 6.02 ms
+**Loading WebAssembly**: 5.26 ms
 
-**Note**: Using `String` as input because number is not done yet
+**Note**: Each iteration has about 46 string cases and 24 int32 cases
 
 | Iteration | baht.js (ms) | baht.c (ms) |
 | --------- | ------------ | ----------- |
-| x1        | 0.25         | 0.97        |
-| x10       | 0.37         | 2.67        |
-| x100      | 4.20         | 8.63        |
-| x1000     | 10.37        | Memory Full |
-| x10000    | 73.32        | Memory Full |
-| x100000   | 736.56       | Memory Full |
-
-### My Assumption
-
-WebAssembly is not suitable for small things
+| VERSION   | 0.6.1        | 0.2.0       |
+| x1        | 0.27         | 1.04        |
+| x10       | 0.46         | 3.97        |
+| x100      | 4.24         | 12.41       |
+| x1000     | 14.33        | 84.01       |
+| x10000    | 88.68        | Memory Full |
+| x100000   | 881.19       | Memory Full |
 
 ## How to use
 
 ### Current Limitation
 
-- It works only for valid string currently, number soon (or may not if I am lazy)
+- It does not support double yet, (only int32 and string)
 
-- You cannot use this too much otherwise memory will full
-(Note: I have tried `free`ing the memory, it results in **_SEGmentation Fault_**)
+- You cannot use this too much (more than 100,000 times) otherwise memory will full, there is memory freeing but that still did not completely fix the issues
 
 ### Example
 
@@ -50,7 +46,7 @@ WebAssembly is not suitable for small things
 import { ready, baht_str, baht_str_unsafe } from "baht.c";
 
 // WebAssembly needs to load, which is why function are async
-// unsafe functions are sync and will return null if WebAssembly
+// unsafe functions are sync and will return null if WebAssembly is not loaded
 // You can `await ready` to ensure it is initialized
 console.log(await baht_str("12345"));
 console.log(baht_str_unsafe("12345"));
@@ -59,9 +55,21 @@ console.log(baht_str_unsafe("12345"));
 
 ### Correctness
 
-For valid string, based on testing (See test/baht.spec.js), it passed the test,
+Based on testing (See test/baht.spec.js), for *valid input*, it passed the test,
 but I cannot guarantee the correctness of this library.
 
-PS v0.1 is developed by TDD, meaning I tweak it until it pass all tests 😂
+PS. This library is developed by TDD, meaning I tweak it until it pass all tests 😂
 
 *and you should not use this library, use [baht.js](https://github.com/narze/baht.js) instead*
+
+### Browser Support
+
+This library supports browser, however, up to your module bundler, a tweak
+might required to make it work. Good luck!
+
+- If your bundler complain about `path` and `fs`, go to build.js and replace
+`require("path")` stuff with any value.
+
+- Your bundler may not bundle the wasm, you need to manually copy it.
+
+*and again, why you would want to use this library?*

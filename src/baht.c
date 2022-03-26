@@ -28,7 +28,12 @@ void swap(char *a, char *b) {
     *b = tmp;
 }
 
-// * Reverse String (Mutates String)
+/**
+ * @brief Reverse the String (mutates the original string)
+ * @param str String to reverse
+ * @param n Length of str
+ * @returns str 
+ */
 char *reverseMutStr(char *str, int n) {
     for (int p = 0; p < n - n / 2; p++) {
         swap(str + p, str + n - 1 - p);
@@ -36,19 +41,40 @@ char *reverseMutStr(char *str, int n) {
     return str;
 }
 
-char *numberToRevStr(int64_t n) {
-    char *res = malloc(sizeof(res) * 25);
+// * Convert Number to reverse string
+char *numberToRevStr(int32_t n) {
+    char *res = malloc(sizeof(res) * 15);
 
     int i = 0;
+
+    bool isNeg = false;
+
+    if (n < 0) {
+        isNeg = true;
+        n = -n;
+    }
+
     while (n > 0) {
         res[i] = n % 10 + '0';
         n /= 10;
         i++;
     }
 
+    if (isNeg) {
+        res[i] = '-';
+        i++;
+    }
+
+    res[i] = '\0';
+
     return res;
 }
 
+/**
+ * @param dest Target String
+ * @param src Source String
+ * @returns Pointer to past the end of concatenated destination string 
+ */
 char *concatStr(char *dest, const char *src) {
     for (const char *p = src; *p != '\0'; p++) {
         *dest++ = *p;
@@ -56,15 +82,24 @@ char *concatStr(char *dest, const char *src) {
     return dest;
 }
 
-char *baht_i64(int64_t n);
+char *baht_i32(int32_t n);
 char *baht_str(char *str);
+char *_baht_str(char *str, bool skipCheck);
 
-export char *baht_i64(int64_t n) {
+export char *baht_i32(int32_t n) {
     char *str = numberToRevStr(n);
-    return baht_str(reverseMutStr(str, strlen(str)));
+    return _baht_str(reverseMutStr(str, strlen(str)), true);
 }
 
 export char *baht_str(char *str) {
+    return _baht_str(str, false);
+}
+
+/**
+ * @param str String to convert to baht
+ * @param skipCheck Skip check for illegal string pattern
+ */
+char *_baht_str(char *str, bool skipCheck) {
     int strLen = strlen(str);
 
     char *result = malloc(sizeof(result) * (strLen * 3) * 15);
@@ -85,8 +120,24 @@ export char *baht_str(char *str) {
         emcomp = curr;
     }
 
+    bool isLeadingZeros = true;
+
     for (; i < dotpos; i++) {
         int unit = str[i] - '0';
+
+        if (!skipCheck) {
+            if (unit < 0 || unit > 9) {
+                free(result);
+                return "";
+            }
+
+            if (!unit && isLeadingZeros)
+                continue;
+
+            if (unit)
+                isLeadingZeros = false;
+        }
+
         bool isEmpty = !(curr - emcomp);
         int digits = dotpos - i - 1;
         if (unit) {
@@ -140,6 +191,8 @@ export char *baht_str(char *str) {
     } else {
         curr = concatStr(curr, BAHTWHOLE);
     }
+
+    *curr = '\0';
 
     return result;
 }

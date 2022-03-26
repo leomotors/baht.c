@@ -1,6 +1,6 @@
 {
   "name": "baht.c",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "baht.js but it is written in C",
   "main": "dist/index.js",
   "repository": "https://github.com/Leomotors/baht.c",

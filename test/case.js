@@ -1,5 +1,5 @@
 // * Copied from narze/baht.js
-module.exports = [
+const numbers = [
     -1,
     0,
     0.01,
@@ -47,3 +47,11 @@ module.exports = [
     987654321098765,
     Number.MAX_SAFE_INTEGER - 1,
 ];
+
+const INT32_MAX = 2147483647;
+
+module.exports = {
+    numbers,
+    numStr: numbers.map((n) => `${n}`),
+    i32_cases: numbers.filter((n) => Number.isInteger(n) && n <= INT32_MAX),
+};

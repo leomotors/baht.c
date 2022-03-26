@@ -32,7 +32,7 @@ async function loadModules() {
  */
 function safeGetString(ptr) {
     const str = toString(ptr);
-    // wasmModule["_freeMemory"](ptr);
+    if (str) wasmModule["_freeMemory"](ptr);
     return str;
 }
 
@@ -48,6 +48,7 @@ function runFromStr(key) {
     return async (str) => {
         if (!initialized) await ready;
 
+        // let alloced = wasmModule._malloc(str.length * 4 + 1);
         let alloced = wasmModule["_allocate"](str.length * 4 + 1);
 
         toUTF8(str, alloced, str.length * 4 + 1);
@@ -68,6 +69,7 @@ function unsafeStrRun(key) {
     return (str) => {
         if (!initialized) return null;
 
+        // let alloced = wasmModule._malloc(str.length * 4 + 1);
         let alloced = wasmModule["_allocate"](str.length * 4 + 1);
 
         toUTF8(str, alloced, str.length * 4 + 1);
@@ -78,10 +80,10 @@ function unsafeStrRun(key) {
 
 module.exports = {
     ready,
-    baht: run("baht_i64"),
-    baht_i64: run("baht_i64"),
+    baht: run("baht_i32"),
+    baht_i32: run("baht_i32"),
     baht_str: runFromStr("baht_str"),
-    baht_unsafe: unsafeRun("baht_i64"),
-    baht_i64_unsafe: unsafeRun("baht_i64"),
+    baht_unsafe: unsafeRun("baht_i32"),
+    baht_i32_unsafe: unsafeRun("baht_i32"),
     baht_str_unsafe: unsafeStrRun("baht_str"),
 };
